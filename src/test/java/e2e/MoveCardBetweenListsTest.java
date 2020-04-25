@@ -5,20 +5,18 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 
 import static io.restassured.RestAssured.given;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MoveCardBetweenListsTest extends BaseTest {
 
-    private static String boardId;
-    private static String firstListId;
-    private static String secondListId;
-    private static String cardId;
+    private String boardId;
+    private String firstListId;
+    private String secondListId;
+    private String cardId;
 
 
     @Test
@@ -44,8 +42,6 @@ public class MoveCardBetweenListsTest extends BaseTest {
     @Test
     @Order(2)
     public void createFirstList(){
-
-        System.out.println(boardId);
 
         Response response = given()
                 .spec(reqSpecification)

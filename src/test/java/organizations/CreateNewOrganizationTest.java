@@ -19,13 +19,14 @@ public class CreateNewOrganizationTest extends BaseTest {
     private String website;
     private String orgId;
     private JsonPath json;
+    private String orgDisplayName = "Coolest organization";
+
 
     @AfterEach
     public void afterEach(){
 
         orgId = json.getString("id");
-
-        given()
+        if(orgId!=null) given()
                 .spec(reqSpecification)
                 .pathParam("id", orgId)
                 .when()
@@ -39,7 +40,7 @@ public class CreateNewOrganizationTest extends BaseTest {
 
         Response response = given()
                 .spec(reqSpecification)
-                .queryParam("displayName", "Coolest organization")
+                .queryParam("displayName", orgDisplayName)
                 .when()
                 .post(BASE_URL + ORGANIZATIONS)
                 .then()
@@ -48,7 +49,24 @@ public class CreateNewOrganizationTest extends BaseTest {
                 .response();
 
         json = response.jsonPath();
-        Assertions.assertThat(json.getString("displayName")).isEqualTo("Coolest organization");
+        Assertions.assertThat(json.getString("displayName")).isEqualTo(orgDisplayName);
+
+    }
+
+    @Test
+    public void createNewOrganizationWithEmptyDisplayName(){
+
+        Response response = given()
+                .spec(reqSpecification)
+                .queryParam("displayName", "")
+                .when()
+                .post(BASE_URL + ORGANIZATIONS)
+                .then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .extract()
+                .response();
+
+        json = response.jsonPath();
 
     }
 
@@ -59,7 +77,7 @@ public class CreateNewOrganizationTest extends BaseTest {
 
         Response response = given()
                 .spec(reqSpecification)
-                .queryParam("displayName", "Best organization")
+                .queryParam("displayName", orgDisplayName)
                 .queryParam("desc", description)
                 .when()
                 .post(BASE_URL + ORGANIZATIONS)
@@ -81,7 +99,7 @@ public class CreateNewOrganizationTest extends BaseTest {
 
         Response response = given()
                 .spec(reqSpecification)
-                .queryParam("displayName", "Funniest organization")
+                .queryParam("displayName", orgDisplayName)
                 .queryParam("name", name)
                 .when()
                 .post(BASE_URL + ORGANIZATIONS)
@@ -102,7 +120,7 @@ public class CreateNewOrganizationTest extends BaseTest {
 
         Response response = given()
                 .spec(reqSpecification)
-                .queryParam("displayName", "Greatest organization")
+                .queryParam("displayName", orgDisplayName)
                 .queryParam("website", website)
                 .when()
                 .post(BASE_URL + ORGANIZATIONS)
