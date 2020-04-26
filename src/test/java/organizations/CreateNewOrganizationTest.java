@@ -21,18 +21,20 @@ public class CreateNewOrganizationTest extends BaseTest {
     private JsonPath json;
     private String orgDisplayName = "Coolest organization";
 
-
     @AfterEach
     public void afterEach(){
 
         orgId = json.getString("id");
-        if(orgId!=null) given()
-                .spec(reqSpecification)
-                .pathParam("id", orgId)
-                .when()
-                .delete(BASE_URL + ORGANIZATIONS + "/{id}")
-                .then()
-                .statusCode(HttpStatus.SC_OK);
+        
+        if(orgId!=null){
+            given()
+                    .spec(reqSpecification)
+                    .pathParam("id", orgId)
+                    .when()
+                    .delete(BASE_URL + ORGANIZATIONS + "/{id}")
+                    .then()
+                    .statusCode(HttpStatus.SC_OK);
+        }
     }
 
     @Test
@@ -66,7 +68,9 @@ public class CreateNewOrganizationTest extends BaseTest {
                 .extract()
                 .response();
 
+        String errorMessage = "Display Name must be at least 1 character";
         json = response.jsonPath();
+        Assertions.assertThat(json.getString("message")).isEqualTo(errorMessage);
 
     }
 
