@@ -8,7 +8,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 
 import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.requestSpecification;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -18,6 +17,8 @@ public class ModifyChecklistTest extends BaseTest {
     private String listId;
     private String cardId;
     private String checklistId;
+    private String firstCheckItemId;
+    private String secondCheckItemId;
 
 
     @Test
@@ -113,14 +114,14 @@ public class ModifyChecklistTest extends BaseTest {
 
     @Test
     @Order(5)
-    public void createFirstCheckitem(){
+    public void createFirstCheckItem(){
 
-        String e2eCheckitemName = "E2E checklist name";
+        String e2eCheckItemName = "E2E first checkItem name";
 
         Response response = given()
                 .spec(reqSpecification)
                 .pathParam("id", checklistId)
-                .queryParam("name", e2eCheckitemName)
+                .queryParam("name", e2eCheckItemName)
                 .when()
                 .post(BASE_URL + CHECKLISTS + "/{id}/" + CHECKITEMS)
                 .then()
@@ -129,13 +130,75 @@ public class ModifyChecklistTest extends BaseTest {
                 .response();
 
         JsonPath json = response.jsonPath();
-        Assertions.assertThat(json.getString("name")).isEqualTo(e2eCheckitemName);
+        firstCheckItemId = json.getString("id");
+        Assertions.assertThat(json.getString("name")).isEqualTo(e2eCheckItemName);
+
+    }
+
+    @Test
+    @Order(6)
+    public void createSecondCheckItem(){
+
+        String e2eCheckItemName = "E2E second checkItem name";
+
+        Response response = given()
+                .spec(reqSpecification)
+                .pathParam("id", checklistId)
+                .queryParam("name", e2eCheckItemName)
+                .when()
+                .post(BASE_URL + CHECKLISTS + "/{id}/" + CHECKITEMS)
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .response();
+
+        JsonPath json = response.jsonPath();
+        secondCheckItemId = json.getString("id");
+        Assertions.assertThat(json.getString("name")).isEqualTo(e2eCheckItemName);
+
+    }
+
+    @Test
+    @Order(7)
+    public void completeFirstCheckItem(){
+
+        String completedState = "complete";
+
+        Response response = given()
+                .spec(reqSpecification)
+                .queryParam("state", completedState)
+                .pathParam("idCard", cardId)
+                .pathParam("idCheckItem", firstCheckItemId)
+                .pathParam("idChecklist", checklistId)
+                .when()
+                .put(BASE_URL + CARDS + "/{idCard}/" + "checklist" + "/{idChecklist}/" + "checkItem" + "/{idCheckItem}")
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .response();
+
+        JsonPath json = response.jsonPath();
+        Assertions.assertThat(json.getString("state")).isEqualTo(completedState);
+    }
+
+    @Test
+    @Order(8)
+    public void deleteSecondCheckItem(){
+
+        given()
+                .spec(reqSpecification)
+                .pathParam("id", checklistId)
+                .pathParam("idCheckItem", secondCheckItemId)
+                .when()
+                .delete(BASE_URL + CHECKLISTS + "/{id}/" + CHECKITEMS + "/{idCheckItem}")
+                .then()
+                .statusCode(HttpStatus.SC_OK);
 
     }
 
 
     @Test
-    @Order(6)
+    @Order(9)
     public void deleteBoard(){
 
         given()
